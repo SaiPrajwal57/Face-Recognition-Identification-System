@@ -164,7 +164,7 @@ export default function RecognitionDetails({ record, onClose }) {
               type="button"
               onClick={() => {
                 onClose();
-                navigate('/identify');
+                navigate('/live');
               }}
               className="px-5 py-2.5 rounded-full bg-[#FFFFFF] text-[#7D5A44] hover:text-[#2A1810] border border-[#7D5A44]/25 text-xs font-bold hover:bg-[#F8F4EC] transition-all"
             >

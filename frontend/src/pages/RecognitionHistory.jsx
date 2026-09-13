@@ -88,7 +88,7 @@ export default function RecognitionHistory() {
         <div className="flex items-center gap-3 self-start lg:self-end">
           <button
             type="button"
-            onClick={() => navigate('/identify')}
+            onClick={() => navigate('/live')}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#2A1810] text-[#FAF7F2] hover:bg-[#3D251A] hover:scale-105 transition-all text-xs font-bold shadow-md"
           >
             <span className="material-symbols-outlined text-[18px]">center_focus_strong</span>
@@ -196,7 +196,7 @@ export default function RecognitionHistory() {
             </p>
             <button
               type="button"
-              onClick={() => navigate('/identify')}
+              onClick={() => navigate('/live')}
               className="mt-2 px-6 py-2.5 rounded-full bg-[#2A1810] text-[#FAF7F2] text-xs font-bold hover:bg-[#3D251A] transition-all shadow-md"
             >
               Start Identification

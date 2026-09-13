@@ -14,8 +14,8 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/live" element={<Identification defaultMode="live" />} />
-        <Route path="/identify" element={<Identification />} />
+        <Route path="/live" element={<Identification />} />
+        <Route path="/identify" element={<Navigate to="/live" replace />} />
         <Route path="/enroll" element={<Enrollment />} />
         <Route path="/people" element={<PeopleDatabase />} />
         <Route path="/people/:personId" element={<PersonDetails />} />

@@ -147,7 +147,7 @@ export default function PersonDetails() {
         <div className="flex flex-wrap items-center gap-3 self-start md:self-center">
           <button
             type="button"
-            onClick={() => navigate('/identify')}
+            onClick={() => navigate('/live')}
             className="px-5 py-2.5 rounded-full bg-[#2A1810] text-[#FAF7F2] text-xs font-bold hover:bg-[#3D251A] hover:scale-105 transition-all shadow-md flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[16px]">center_focus_strong</span>
@@ -234,7 +234,7 @@ export default function PersonDetails() {
             </span>
             <button
               type="button"
-              onClick={() => navigate('/identify')}
+              onClick={() => navigate('/live')}
               className="mt-2 px-5 py-2 rounded-full bg-[#2A1810] text-[#FAF7F2] text-xs font-bold hover:bg-[#3D251A] transition-all"
             >
               Test Identification Now

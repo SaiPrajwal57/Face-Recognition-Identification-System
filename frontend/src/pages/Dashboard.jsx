@@ -39,7 +39,7 @@ export default function Dashboard() {
         {/* Quick Pill Action Triggers - Every button is wired! */}
         <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={() => navigate('/identify?mode=upload')}
+            onClick={() => navigate('/live?mode=upload')}
             className="flex items-center gap-2 px-5 py-3 rounded-full bg-[#2A1810] text-[#FAF7F2] text-xs font-bold transition-all duration-200 hover:bg-[#3D251A] hover:scale-[1.02] shadow-[0_8px_20px_-4px_rgba(42,24,16,0.25)]"
             type="button"
           >
@@ -203,14 +203,14 @@ export default function Dashboard() {
               </span>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate('/identify?mode=upload')}
+                  onClick={() => navigate('/live?mode=upload')}
                   className="px-5 py-2.5 rounded-full bg-[#FAF7F2] text-[#2A1810] text-xs font-bold hover:scale-105 transition-all shadow-md flex items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-[16px]">upload_file</span>
                   <span>Upload Image</span>
                 </button>
                 <button
-                  onClick={() => navigate('/identify?mode=webcam')}
+                  onClick={() => navigate('/live?mode=snapshot')}
                   className="px-5 py-2.5 rounded-full bg-[#2A1810] text-[#FAF7F2] border border-[#F0ECDD]/20 text-xs font-bold hover:scale-105 transition-all shadow-md flex items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-[16px]">videocam</span>
@@ -264,7 +264,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-xs text-[#7D5A44]">No recognitions recorded in this session yet.</div>
                 <button
-                  onClick={() => navigate('/identify')}
+                  onClick={() => navigate('/live')}
                   className="px-4 py-1.5 rounded-full bg-[#2A1810] text-[#FAF7F2] text-xs font-semibold hover:bg-[#3D251A] transition-all"
                 >
                   Run Identification

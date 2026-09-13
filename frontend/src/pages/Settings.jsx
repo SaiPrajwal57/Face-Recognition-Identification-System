@@ -175,21 +175,6 @@ export default function Settings() {
                 className="w-4 h-4 accent-[#2A1810] cursor-pointer"
               />
             </label>
-
-            <label className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F8F4EC] cursor-pointer hover:bg-[#F2ECE1] transition-colors">
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-[#2A1810]">Single Face Strict Mode</span>
-                <span className="text-[11px] text-[#7D5A44]">
-                  Reject images with &gt; 1 faces detected to prevent identity confusion (Enforced by backend)
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={true}
-                disabled
-                className="w-4 h-4 accent-[#2A1810] cursor-not-allowed opacity-75"
-              />
-            </label>
           </div>
         </div>
 

@@ -19,8 +19,19 @@ export default function Identification({ defaultMode }) {
 
   // Mode: 'live' | 'upload' | 'snapshot'
   const paramMode = searchParams.get('mode');
-  const initialMode = defaultMode || (paramMode === 'upload' ? 'upload' : paramMode === 'snapshot' ? 'snapshot' : 'live');
+  const initialMode = paramMode === 'upload' ? 'upload' : (paramMode === 'snapshot' || paramMode === 'webcam') ? 'snapshot' : (defaultMode || 'live');
   const [mode, setMode] = useState(initialMode);
+
+  useEffect(() => {
+    const qMode = searchParams.get('mode');
+    if (qMode === 'upload') {
+      setMode('upload');
+    } else if (qMode === 'snapshot' || qMode === 'webcam') {
+      setMode('snapshot');
+    } else if (qMode === 'live') {
+      setMode('live');
+    }
+  }, [searchParams]);
 
   // States for Upload & Snapshot workflows
   // 'idle' | 'preview' | 'processing' | 'match' | 'unknown' | 'error'
