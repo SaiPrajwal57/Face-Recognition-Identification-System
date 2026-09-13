@@ -11,3 +11,6 @@ env/
 venv/
 backend/tests/test_assets/
 .png
+node_modules/
+dist/
+.DS_Store

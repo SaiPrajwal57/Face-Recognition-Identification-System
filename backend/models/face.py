@@ -20,6 +20,16 @@ class EnrollResponse(BaseModel):
     name: str = Field(..., description="Enrolled person name")
 
 
+class BoundingBox(BaseModel):
+    """Schema representing detected face bounding box coordinates and image dimensions."""
+    x1: int = Field(..., description="Top-left X coordinate")
+    y1: int = Field(..., description="Top-left Y coordinate")
+    x2: int = Field(..., description="Bottom-right X coordinate")
+    y2: int = Field(..., description="Bottom-right Y coordinate")
+    image_width: Optional[int] = Field(default=None, description="Width of the processed frame")
+    image_height: Optional[int] = Field(default=None, description="Height of the processed frame")
+
+
 class IdentifyResponse(BaseModel):
     """Schema for face identification response (known or unknown)."""
     success: bool = Field(default=True, description="Indicates if identification process completed successfully")
@@ -27,6 +37,8 @@ class IdentifyResponse(BaseModel):
     person: Optional[PersonResponse] = Field(default=None, description="Matched person details, or null if unknown")
     similarity: float = Field(..., description="Similarity confidence score between 0.0 and 1.0")
     message: Optional[str] = Field(default=None, description="Additional status details (e.g. 'Unknown face')")
+    bounding_box: Optional[BoundingBox] = Field(default=None, description="Detected face bounding box coordinates")
+    detection_confidence: Optional[float] = Field(default=None, description="Face detection confidence score")
 
 
 class HealthResponse(BaseModel):

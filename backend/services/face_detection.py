@@ -119,6 +119,8 @@ def validate_single_face(
             "y1": bbox[1] if len(bbox) > 1 else 0,
             "x2": bbox[2] if len(bbox) > 2 else 0,
             "y2": bbox[3] if len(bbox) > 3 else 0,
+            "image_width": int(bgr_image.shape[1]),
+            "image_height": int(bgr_image.shape[0]),
         },
         "confidence": round(confidence, 4),
         "landmarks_count": len(face.kps) if hasattr(face, "kps") and face.kps is not None else 0,

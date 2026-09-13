@@ -11,6 +11,9 @@ import numpy as np
 
 # Configurable starting development threshold (can be set via environment variable)
 DEFAULT_SIMILARITY_THRESHOLD: float = float(os.getenv("SIMILARITY_THRESHOLD", "0.50"))
+DEFAULT_DUPLICATE_THRESHOLD: float = float(
+    os.getenv("DUPLICATE_THRESHOLD", str(DEFAULT_SIMILARITY_THRESHOLD))
+)
 
 
 def compute_cosine_similarity(vec_a: List[float], vec_b: List[float]) -> float:

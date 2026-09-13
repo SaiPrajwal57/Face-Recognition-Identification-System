@@ -230,6 +230,12 @@ class FaceRecognitionPipelineTestCase(unittest.TestCase):
         self.assertEqual(data["person"]["id"], person_id)
         self.assertEqual(data["person"]["name"], "Alice Smith")
         self.assertGreaterEqual(data["similarity"], 0.50)
+        self.assertIn("bounding_box", data)
+        self.assertIsNotNone(data["bounding_box"])
+        self.assertIn("x1", data["bounding_box"])
+        self.assertIn("image_width", data["bounding_box"])
+        self.assertIn("detection_confidence", data)
+        self.assertGreater(data["detection_confidence"], 0.0)
 
     def test_14_identify_unknown_face_rejection(self):
         """Test 14: POST /api/v1/faces/identify rejects a non-enrolled identity as unknown."""
@@ -252,6 +258,11 @@ class FaceRecognitionPipelineTestCase(unittest.TestCase):
         self.assertIsNone(data["person"])
         self.assertEqual(data["message"], "Unknown face")
         self.assertLess(data["similarity"], 0.50)
+        self.assertIn("bounding_box", data)
+        self.assertIsNotNone(data["bounding_box"])
+        self.assertIn("x1", data["bounding_box"])
+        self.assertIn("image_width", data["bounding_box"])
+        self.assertIn("detection_confidence", data)
 
     def test_15_delete_person_and_404_lifecycle(self):
         """Test 15: DELETE /api/v1/faces/{id} deletes person and subsequent requests return 404."""
@@ -276,6 +287,65 @@ class FaceRecognitionPipelineTestCase(unittest.TestCase):
         # Second DELETE should return 404
         delete_again = self.client.delete(f"/api/v1/faces/{person_id}")
         self.assertEqual(delete_again.status_code, 404)
+
+    def test_16_duplicate_face_enrollment_rejected(self):
+        """Test 16: Re-enrolling an existing face is rejected with 400 and clear error message."""
+        # 1. First enrollment of Alice succeeds
+        resp1 = self.client.post(
+            "/api/v1/faces/enroll",
+            data={"name": "Alice Smith"},
+            files={"image": ("alice.jpg", self.person1_bytes, "image/jpeg")},
+        )
+        self.assertEqual(resp1.status_code, 201)
+        self.assertTrue(resp1.json()["success"])
+
+        # 2. Attempting to enroll Alice's face again (even under a different name) is rejected
+        resp2 = self.client.post(
+            "/api/v1/faces/enroll",
+            data={"name": "Alice Duplicate"},
+            files={"image": ("alice_again.jpg", self.person1_bytes, "image/jpeg")},
+        )
+        self.assertEqual(resp2.status_code, 400)
+        data2 = resp2.json()
+        self.assertFalse(data2["success"])
+        self.assertIn("Face already enrolled", data2["detail"])
+        self.assertIn("Alice Smith", data2["detail"])
+
+        # 3. Enrolling a different face (Bob) succeeds
+        resp3 = self.client.post(
+            "/api/v1/faces/enroll",
+            data={"name": "Bob Jones"},
+            files={"image": ("bob.jpg", self.person2_bytes, "image/jpeg")},
+        )
+        self.assertEqual(resp3.status_code, 201)
+        self.assertTrue(resp3.json()["success"])
+
+        # 4. Verify database only has 2 records (Alice and Bob, no duplicate)
+        people_resp = self.client.get("/api/v1/faces")
+        self.assertEqual(people_resp.status_code, 200)
+        people = people_resp.json()
+        self.assertEqual(len(people), 2)
+        names = {p["name"] for p in people}
+        self.assertIn("Alice Smith", names)
+        self.assertIn("Bob Jones", names)
+        self.assertNotIn("Alice Duplicate", names)
+
+        # 5. Identification continues to work normally for both enrolled individuals
+        id_alice = self.client.post(
+            "/api/v1/faces/identify",
+            files={"image": ("alice_query.jpg", self.person1_bytes, "image/jpeg")},
+        )
+        self.assertEqual(id_alice.status_code, 200)
+        self.assertTrue(id_alice.json()["identified"])
+        self.assertEqual(id_alice.json()["person"]["name"], "Alice Smith")
+
+        id_bob = self.client.post(
+            "/api/v1/faces/identify",
+            files={"image": ("bob_query.jpg", self.person2_bytes, "image/jpeg")},
+        )
+        self.assertEqual(id_bob.status_code, 200)
+        self.assertTrue(id_bob.json()["identified"])
+        self.assertEqual(id_bob.json()["person"]["name"], "Bob Jones")
 
 
 if __name__ == "__main__":

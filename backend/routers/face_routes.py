@@ -1,11 +1,12 @@
 """API router for face enrollment, identification, and profile management."""
 
 import logging
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from backend.database import get_db
 from backend.models.face import (
+    BoundingBox,
     DeleteResponse,
     EnrollResponse,
     IdentifyResponse,
@@ -20,6 +21,7 @@ from backend.services.face_detection import (
 )
 from backend.services.face_embedding import extract_face_embedding
 from backend.services.face_matching import (
+    DEFAULT_DUPLICATE_THRESHOLD,
     DEFAULT_SIMILARITY_THRESHOLD,
     find_best_match,
 )
@@ -85,9 +87,38 @@ async def enroll_face(
             detail=f"Failed to extract face embedding: {str(exc)}",
         ) from exc
 
-    # Step 3: Save record in database (MongoDB Atlas or active DB)
+    # Step 3: Check for existing duplicate enrolled face
+    db = get_db()
     try:
-        db = get_db()
+        existing_records = db.get_enrolled_embeddings()
+    except Exception as exc:
+        logger.error("Failed to retrieve enrolled embeddings for duplicate check: %s", type(exc).__name__)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to verify existing face records from database.",
+        ) from exc
+
+    if existing_records:
+        duplicate_threshold = DEFAULT_DUPLICATE_THRESHOLD
+        is_duplicate, matched_person, similarity = find_best_match(
+            query_embedding=embedding,
+            enrolled_records=existing_records,
+            threshold=duplicate_threshold,
+        )
+        if is_duplicate and matched_person:
+            matched_name = matched_person.get("name", "Unknown")
+            logger.warning(
+                "Duplicate face enrollment rejected. Matches existing person '%s' with similarity %.4f",
+                matched_name,
+                similarity,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Face already enrolled. This face matches an existing person: {matched_name} (similarity: {similarity * 100:.1f}%).",
+            )
+
+    # Step 4: Save record in database (MongoDB Atlas or active DB)
+    try:
         bbox = face_meta.get("bounding_box", {})
         image_meta = {
             "dimensions": [
@@ -137,6 +168,7 @@ async def enroll_face(
 )
 async def identify_face(
     image: UploadFile = File(..., description="Query face image to identify"),
+    threshold: Optional[float] = None,
 ) -> IdentifyResponse:
     """Identify a person from a query face image using similarity matching."""
     if not image.filename or not image.content_type:
@@ -155,7 +187,7 @@ async def identify_face(
 
     # Step 1: Detect and validate that exactly one face is present
     try:
-        face_obj, _ = validate_single_face(image_bytes)
+        face_obj, face_meta = validate_single_face(image_bytes)
     except (NoFaceDetectedError, MultipleFacesDetectedError, LowConfidenceError, FaceDetectionError) as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -188,11 +220,16 @@ async def identify_face(
         ) from exc
 
     # Step 4: Perform cosine similarity matching
+    target_threshold = threshold if threshold is not None else DEFAULT_SIMILARITY_THRESHOLD
     is_identified, matched_person, similarity = find_best_match(
         query_embedding=query_embedding,
         enrolled_records=enrolled_records,
-        threshold=DEFAULT_SIMILARITY_THRESHOLD,
+        threshold=target_threshold,
     )
+
+    bbox_meta = face_meta.get("bounding_box") if face_meta else None
+    bbox_obj = BoundingBox(**bbox_meta) if bbox_meta else None
+    confidence_val = face_meta.get("confidence") if face_meta else None
 
     if is_identified and matched_person:
         return IdentifyResponse(
@@ -205,6 +242,8 @@ async def identify_face(
             ),
             similarity=similarity,
             message="Face identified successfully",
+            bounding_box=bbox_obj,
+            detection_confidence=confidence_val,
         )
 
     return IdentifyResponse(
@@ -213,6 +252,8 @@ async def identify_face(
         person=None,
         similarity=similarity,
         message="Unknown face",
+        bounding_box=bbox_obj,
+        detection_confidence=confidence_val,
     )
 
 

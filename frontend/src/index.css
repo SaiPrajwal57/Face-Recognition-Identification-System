@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #F8F4EC;
+    color: #1c1c18;
+  }
+  body {
+    overscroll-behavior: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Custom discreet scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(125, 90, 68, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(125, 90, 68, 0.4);
+}
+
+/* Biometric HUD Reticle animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(142, 96, 62, 0.3), inset 0 0 15px rgba(142, 96, 62, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(142, 96, 62, 0.6), inset 0 0 25px rgba(142, 96, 62, 0.3);
+  }
+}
+
+.reticle-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes scanLine {
+  0% {
+    top: 5%;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    top: 95%;
+    opacity: 0.2;
+  }
+}
+
+.scan-laser {
+  animation: scanLine 2s infinite ease-in-out alternate;
+}
