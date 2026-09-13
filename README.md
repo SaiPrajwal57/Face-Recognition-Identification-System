@@ -275,14 +275,6 @@ Face-Recognition-Identification-System/
 │       └── services/
 │           └── api.js                # Fetch-based API client
 │
-├── evaluation/
-│   ├── evaluate.py                   # ML evaluation: genuine/impostor/threshold/edge-case
-│   ├── build_dataset.py              # Builds augmented evaluation dataset from test images
-│   ├── diagnostic.py                 # Pipeline configuration diagnostic
-│   ├── results.json                  # Full machine-readable evaluation output
-│   ├── results.csv                   # Threshold sweep as CSV
-│   ├── README.md                     # Detailed evaluation report
-│   └── known/                        # Augmented evaluation images (2 identities × 10 variants)
 │
 ├── TEST_REPORT.md                    # Full QA and ML evaluation test report
 ├── LICENSE
